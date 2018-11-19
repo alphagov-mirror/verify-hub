@@ -81,6 +81,7 @@ public class AuthnResponseFromIdpServiceTest {
         LevelOfAssurance loaAchieved = LevelOfAssurance.LEVEL_2;
         stub(idpSelectedStateController.isRegistrationContext()).toReturn(REGISTERING);
         when(idpSelectedStateController.getMatchingServiceEntityId()).thenReturn(msaEntityId);
+        when(idpSelectedStateController.isMatchingJourney()).thenReturn(true);
         InboundResponseFromIdpDto successResponseFromIdp = InboundResponseFromIdpDtoBuilder.successResponse(UUID.randomUUID().toString(), loaAchieved);
         SamlAuthnResponseTranslatorDto samlAuthnResponseTranslatorDto = SamlAuthnResponseTranslatorDtoBuilder.aSamlAuthnResponseTranslatorDto().build();
         when(samlAuthnResponseTranslatorDtoFactory.fromSamlAuthnResponseContainerDto(samlAuthnResponseContainerDto, msaEntityId)).thenReturn(samlAuthnResponseTranslatorDto);

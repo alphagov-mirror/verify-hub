@@ -299,6 +299,10 @@ public class IdpSelectedStateController implements ErrorResponsePreparedStateCon
                 .orElse(transactionsConfigProxy.getMatchingServiceEntityId(state.getRequestIssuerEntityId()));
     }
 
+    public boolean isMatchingJourney() {
+        return transactionsConfigProxy.isUsingMatching(state.getRequestIssuerEntityId());
+    }
+
     @Override
     public void handleIdpSelected(String idpEntityId, String principalIpAddress, boolean registering, LevelOfAssurance requestedLoa) {
         IdpSelectedState idpSelectedState = IdpSelector.buildIdpSelectedState(state, idpEntityId, registering, requestedLoa, transactionsConfigProxy, identityProvidersConfigProxy);
