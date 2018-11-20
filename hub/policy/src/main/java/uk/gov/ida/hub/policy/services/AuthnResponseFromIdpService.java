@@ -114,12 +114,12 @@ public class AuthnResponseFromIdpService {
                 inboundResponseFromIdpDto.getPrincipalIpAddressAsSeenByIdp());
 
         if (idpSelectedStateController.isMatchingJourney()) {
+            idpSelectedStateController.handleMatchingJourneySuccessResponseFromIdp(successFromIdp);
             AttributeQueryRequestDto attributeQuery = idpSelectedStateController.createAttributeQuery(successFromIdp);
-
-            idpSelectedStateController.handleSuccessResponseFromIdp(successFromIdp);
             attributeQueryService.sendAttributeQueryRequest(sessionId, attributeQuery);
             return success(sessionId, idpSelectedStateController.isRegistrationContext(), loaAchieved);
         } else {
+            idpSelectedStateController.handleNonMatchingJourneySuccessResponseFromIdp(successFromIdp);
             return nonMatchingJourneySuccess(sessionId, idpSelectedStateController.isRegistrationContext(), loaAchieved);
         }
     }

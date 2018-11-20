@@ -144,7 +144,17 @@ public class IdpSelectedStateController implements ErrorResponsePreparedStateCon
         stateTransitionAction.transitionTo(createRequesterErrorState());
     }
 
-    public void handleSuccessResponseFromIdp(SuccessFromIdp successFromIdp) {
+    public void handleMatchingJourneySuccessResponseFromIdp(SuccessFromIdp successFromIdp) {
+        handleSuccessResponseFromIdp(successFromIdp);
+        stateTransitionAction.transitionTo(createCycle0And1MatchRequestSentState(successFromIdp));
+    }
+
+    public void handleNonMatchingJourneySuccessResponseFromIdp(SuccessFromIdp successFromIdp) {
+        handleSuccessResponseFromIdp(successFromIdp);
+        stateTransitionAction.transitionTo(createCycle0And1MatchRequestSentState(successFromIdp));
+    }
+
+    private void handleSuccessResponseFromIdp(SuccessFromIdp successFromIdp) {
         validateIdpIsEnabledAndWasIssuedWithRequest(successFromIdp.getIssuer(), state.isRegistering(), state.getRequestedLoa(), state.getRequestIssuerEntityId());
         validateIdpLevelOfAssuranceIsInAcceptedLevels(successFromIdp.getLevelOfAssurance(), state.getLevelsOfAssurance());
         validateReturnedLevelOfAssuranceFromIdpIsConsistentWithIdpConfig(successFromIdp.getLevelOfAssurance(), successFromIdp.getIssuer(), state.getRequestId());
@@ -160,8 +170,6 @@ public class IdpSelectedStateController implements ErrorResponsePreparedStateCon
                 successFromIdp.getLevelOfAssurance(),
                 successFromIdp.getPrincipalIpAddressAsSeenByIdp(),
                 successFromIdp.getPrincipalIpAddressAsSeenByHub());
-
-        stateTransitionAction.transitionTo(createCycle0And1MatchRequestSentState(successFromIdp));
     }
 
     public void handleFraudResponseFromIdp(FraudFromIdp fraudFromIdp) {

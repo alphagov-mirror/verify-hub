@@ -212,7 +212,7 @@ public class IdpSelectedStateControllerTest {
         SuccessFromIdp successFromIdp = aSuccessFromIdp().build();
         when(identityProvidersConfigProxy.getEnabledIdentityProviders(TRANSACTION_ENTITY_ID, controller.isRegistrationContext(), PROVIDED_LOA))
                 .thenReturn(emptyList());
-        controller.handleSuccessResponseFromIdp(successFromIdp);
+        controller.handleMatchingJourneySuccessResponseFromIdp(successFromIdp);
     }
 
     @Test(expected = StateProcessingValidationException.class)
@@ -230,7 +230,7 @@ public class IdpSelectedStateControllerTest {
         when(policyConfiguration.getMatchingServiceResponseWaitPeriod()).thenReturn(new org.joda.time.Duration(600L));
         when(identityProvidersConfigProxy.getIdpConfig(IDP_ENTITY_ID)).thenReturn(anIdpConfigDto().withLevelsOfAssurance(LEVELS_OF_ASSURANCE).build());
 
-        controller.handleSuccessResponseFromIdp(successFromIdp);
+        controller.handleMatchingJourneySuccessResponseFromIdp(successFromIdp);
     }
 
     @Test(expected = IdpDisabledException.class)
@@ -310,7 +310,7 @@ public class IdpSelectedStateControllerTest {
         when(policyConfiguration.getMatchingServiceResponseWaitPeriod()).thenReturn(new org.joda.time.Duration(600L));
         when(identityProvidersConfigProxy.getIdpConfig(IDP_ENTITY_ID)).thenReturn(anIdpConfigDto().withLevelsOfAssurance(LEVELS_OF_ASSURANCE).build());
 
-        controller.handleSuccessResponseFromIdp(successFromIdp);
+        controller.handleMatchingJourneySuccessResponseFromIdp(successFromIdp);
 
         verify(stateTransitionAction).transitionTo(stateArgumentCaptor.capture());
         assertThat(stateArgumentCaptor.getValue()).isInstanceOf(Cycle0And1MatchRequestSentState.class);
@@ -331,7 +331,7 @@ public class IdpSelectedStateControllerTest {
                 .thenReturn(singletonList(IDP_ENTITY_ID));
         when(policyConfiguration.getMatchingServiceResponseWaitPeriod()).thenReturn(new org.joda.time.Duration(600L));
         when(identityProvidersConfigProxy.getIdpConfig(IDP_ENTITY_ID)).thenReturn(anIdpConfigDto().withLevelsOfAssurance(LEVELS_OF_ASSURANCE).build());
-        controller.handleSuccessResponseFromIdp(successFromIdp);
+        controller.handleMatchingJourneySuccessResponseFromIdp(successFromIdp);
         verify(hubEventLogger).logIdpAuthnSucceededEvent(
                 NEW_SESSION_ID,
                 SESSION_EXPIRY_TIMESTAMP,
@@ -440,6 +440,6 @@ public class IdpSelectedStateControllerTest {
         when(identityProvidersConfigProxy.getEnabledIdentityProviders(TRANSACTION_ENTITY_ID, controller.isRegistrationContext(), PROVIDED_LOA))
                 .thenReturn(asList(IDP_ENTITY_ID, "differentIDP"));
 
-        controller.handleSuccessResponseFromIdp(successFromIdp);
+        controller.handleMatchingJourneySuccessResponseFromIdp(successFromIdp);
     }
 }
