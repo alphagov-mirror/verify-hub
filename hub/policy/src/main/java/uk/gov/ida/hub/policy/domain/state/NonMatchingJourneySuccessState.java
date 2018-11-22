@@ -6,12 +6,12 @@ import uk.gov.ida.hub.policy.domain.AbstractState;
 import uk.gov.ida.hub.policy.domain.SessionId;
 
 import java.net.URI;
-import java.util.List;
+import java.util.Set;
 
 public class NonMatchingJourneySuccessState extends AbstractState implements ResponsePreparedState {
 
     private final Optional<String> relayState;
-    private final List<String> encryptedAssertions;
+    private final Set<String> encryptedAssertions;
 
     public NonMatchingJourneySuccessState(
         final String requestId,
@@ -21,7 +21,7 @@ public class NonMatchingJourneySuccessState extends AbstractState implements Res
         final SessionId sessionId,
         final boolean transactionSupportsEidas,
         final Optional<String> relayState,
-        final List<String> encryptedAssertions
+        final Set<String> encryptedAssertions
     ) {
         super(
             requestId,
@@ -35,17 +35,15 @@ public class NonMatchingJourneySuccessState extends AbstractState implements Res
 
         this.relayState = relayState;
         this.encryptedAssertions = encryptedAssertions;
-
-        /*
-         TODO - We're also going to need:
-           * A status (TransactionIdaStatus)  <-- it looks like this is derived elsewhere and won't be needed here.
-           * A responseId - but I suspect we get that from somewhere else.
-         */
     }
 
     @Override
     public Optional<String> getRelayState() {
         return relayState;
+    }
+
+    public Set<String> getEncryptedAssertions() {
+        return encryptedAssertions;
     }
 
 }
