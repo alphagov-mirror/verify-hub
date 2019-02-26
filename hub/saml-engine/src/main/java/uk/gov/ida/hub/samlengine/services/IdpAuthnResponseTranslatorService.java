@@ -56,7 +56,7 @@ public class IdpAuthnResponseTranslatorService {
         Response response = stringToOpenSamlResponseTransformer.apply(samlResponseDto.getSamlResponse());
         MdcHelper.addContextToMdc(response);
         try {
-            InboundResponseFromIdp idaResponseFromIdp = samlResponseToIdaResponseIssuedByIdpTransformer.apply(response);
+            InboundResponseFromIdp idaResponseFromIdp = samlResponseToIdaResponseIssuedByIdpTransformer.apply(response, samlResponseDto.getMatchingServiceEntityId());
             UnknownMethodAlgorithmLogger.probeResponseForMethodAlgorithm(idaResponseFromIdp);
             if (idaResponseFromIdp.getAuthnStatementAssertion().isPresent()) {
                 Assertion authnStatementAssertion = stringToAssertionTransformer.apply(idaResponseFromIdp.getAuthnStatementAssertion().get().getUnderlyingAssertionBlob());

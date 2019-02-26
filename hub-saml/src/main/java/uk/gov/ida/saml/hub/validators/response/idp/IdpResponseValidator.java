@@ -1,6 +1,7 @@
 package uk.gov.ida.saml.hub.validators.response.idp;
 
 import org.opensaml.saml.saml2.core.Assertion;
+import org.opensaml.saml.saml2.core.AttributeStatement;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
 import uk.gov.ida.saml.core.validators.DestinationValidator;
@@ -46,7 +47,7 @@ public class IdpResponseValidator {
         return validatedAssertions;
     }
 
-    public void validate(Response response) {
+    public void validate(Response response, String entityId) {
         responseFromIdpValidator.validate(response);
         responseDestinationValidator.validate(response.getDestination());
 
@@ -56,5 +57,15 @@ public class IdpResponseValidator {
         validatedAssertions = samlAssertionsSignatureValidator.validate(decryptedAssertions, IDPSSODescriptor.DEFAULT_ELEMENT_NAME);
 
         responseAssertionsFromIdpValidator.validate(validatedResponse, validatedAssertions);
+
+        if (entityId.contains("proxy-node")) {
+
+        }
+    }
+
+    private void logProxyNodeHash(ValidatedAssertions validatedAssertions) {
+        for (AttributeStatement attributeStatement : validatedAssertions.getMatchingDatasetAssertion().get().getAttributeStatements()) {
+            attributeStatement.getAttributes().get(0).getAttributeValues();
+        }
     }
 }

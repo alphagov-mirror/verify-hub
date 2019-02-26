@@ -13,9 +13,9 @@ import uk.gov.ida.saml.security.validators.ValidatedAssertions;
 import uk.gov.ida.saml.security.validators.ValidatedResponse;
 import uk.gov.ida.saml.security.validators.signature.SamlResponseSignatureValidator;
 
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
-public class DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer implements Function<Response, InboundResponseFromIdp> {
+public class DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer implements BiFunction<Response,String, InboundResponseFromIdp> {
 
     private final IdaResponseFromIdpUnmarshaller idaResponseUnmarshaller;
     private IdpResponseValidator idpResponseValidator;
@@ -47,12 +47,12 @@ public class DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer implements
     }
 
     @Override
-    public InboundResponseFromIdp apply(Response response) {
-        this.idpResponseValidator.validate(response);
+    public InboundResponseFromIdp apply(Response response, String entityId) {
+
+        this.idpResponseValidator.validate(response, entityId);
         ValidatedResponse validatedResponse = this.idpResponseValidator.getValidatedResponse();
         ValidatedAssertions validatedAssertions = this.idpResponseValidator.getValidatedAssertions();
 
         return idaResponseUnmarshaller.fromSaml(validatedResponse, validatedAssertions);
     }
-
 }

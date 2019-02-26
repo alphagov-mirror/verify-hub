@@ -30,7 +30,7 @@ public class IdpAuthnResponseTranslatorResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Timed
-    public Response translate(@Valid SamlAuthnResponseTranslatorDto samlResponseDto) throws JsonProcessingException {
+    public Response translate(@Valid SamlAuthnResponseTranslatorDto samlResponseDto) {
         InboundResponseFromIdpDto translated = idpAuthnResponseTranslatorService.translate(samlResponseDto);
 
         return Response.ok().entity(translated).type(MediaType.APPLICATION_JSON_TYPE).build();

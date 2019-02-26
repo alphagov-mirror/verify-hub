@@ -15,6 +15,8 @@ public class SamlAuthnResponseTranslatorDto {
     @NotNull
     private String matchingServiceEntityId;
 
+    private String simpleId;
+
     @SuppressWarnings("unused") //Needed for JAXB
     private SamlAuthnResponseTranslatorDto() {
     }
