@@ -1,9 +1,12 @@
 package uk.gov.ida.hub.policy.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.joda.time.DateTime;
+import uk.gov.ida.saml.core.domain.EidasUnsignedAssertions;
 
 import java.util.Optional;
+import java.util.List;
 
 // This annotation is required for ZDD where we may add fields to newer versions of this DTO
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -15,8 +18,15 @@ public class InboundResponseFromCountry {
     private Optional<String> encryptedIdentityAssertionBlob;
     private Optional<LevelOfAssurance> levelOfAssurance;
     private Optional<DateTime> notOnOrAfter;
+    private Optional<EidasUnsignedAssertions> unsignedAssertions;
 
-    public InboundResponseFromCountry(CountryAuthenticationStatus.Status status, Optional<String> statusMessage, String issuer, Optional<String> encryptedIdentityAssertionBlob, Optional<String> persistentId, Optional<LevelOfAssurance> levelOfAssurance, Optional<DateTime> notOnOrAfter) {
+    public InboundResponseFromCountry(CountryAuthenticationStatus.Status status,
+                                      Optional<String> statusMessage, String issuer,
+                                      Optional<String> encryptedIdentityAssertionBlob,
+                                      Optional<String> persistentId,
+                                      Optional<LevelOfAssurance> levelOfAssurance,
+                                      Optional<DateTime> notOnOrAfter,
+                                      Optional<EidasUnsignedAssertions> unsignedAssertions) {
         this.status = status;
         this.statusMessage = statusMessage;
         this.issuer = issuer;
@@ -24,6 +34,7 @@ public class InboundResponseFromCountry {
         this.persistentId = persistentId;
         this.levelOfAssurance = levelOfAssurance;
         this.notOnOrAfter = notOnOrAfter;
+        this.unsignedAssertions = unsignedAssertions;
     }
 
     protected InboundResponseFromCountry() {
@@ -55,5 +66,9 @@ public class InboundResponseFromCountry {
 
     public Optional<DateTime> getNotOnOrAfter() {
         return notOnOrAfter;
+    }
+
+    public Optional<EidasUnsignedAssertions> getUnsignedAssertions() {
+        return unsignedAssertions;
     }
 }
