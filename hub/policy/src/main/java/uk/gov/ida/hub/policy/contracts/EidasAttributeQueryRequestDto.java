@@ -7,12 +7,11 @@ import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.PersistentId;
 import uk.gov.ida.hub.policy.domain.UserAccountCreationAttribute;
 import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
-import uk.gov.ida.saml.core.domain.EidasUnsignedAssertions;
+import uk.gov.ida.saml.core.domain.EidasCountrySignedResponseWithEncryptedKeys;
 import uk.gov.ida.saml.core.domain.UnsignedAssertions;
 
 import javax.validation.constraints.NotNull;
 import java.net.URI;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -23,7 +22,7 @@ public final class EidasAttributeQueryRequestDto extends AbstractAttributeQueryR
 
     @NotNull
     private final String encryptedIdentityAssertion;
-    private Optional<EidasUnsignedAssertions> unsignedAssertions;
+    private Optional<EidasCountrySignedResponseWithEncryptedKeys> unsignedAssertions;
 
     public EidasAttributeQueryRequestDto (
         final String requestId,
@@ -71,7 +70,7 @@ public final class EidasAttributeQueryRequestDto extends AbstractAttributeQueryR
             final Optional<Cycle3Dataset> cycle3Dataset,
             final Optional<List<UserAccountCreationAttribute>> userAccountCreationAttributes,
             final String encryptedIdentityAssertion,
-            final Optional<EidasUnsignedAssertions> unsignedAssertions) {
+            final Optional<EidasCountrySignedResponseWithEncryptedKeys> unsignedAssertions) {
 
         super(
                 requestId,
@@ -157,12 +156,12 @@ public final class EidasAttributeQueryRequestDto extends AbstractAttributeQueryR
     }
 
     @Override
-    public Optional<EidasUnsignedAssertions> getUnsignedAssertions() {
+    public Optional<EidasCountrySignedResponseWithEncryptedKeys> getUnsignedAssertions() {
         return this.unsignedAssertions;
     }
 
     @Override
-    public void setUnisgnedAssertions(EidasUnsignedAssertions unsignedAssertions) {
+    public void setUnisgnedAssertions(EidasCountrySignedResponseWithEncryptedKeys unsignedAssertions) {
         this.unsignedAssertions = Optional.of(unsignedAssertions);
     }
 }

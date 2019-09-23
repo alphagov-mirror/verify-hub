@@ -33,7 +33,7 @@ import uk.gov.ida.hub.policy.factories.SamlAuthnResponseTranslatorDtoFactory;
 import uk.gov.ida.hub.policy.proxy.AttributeQueryRequest;
 import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
 import uk.gov.ida.hub.policy.proxy.SamlSoapProxyProxy;
-import uk.gov.ida.saml.core.domain.EidasUnsignedAssertions;
+import uk.gov.ida.saml.core.domain.EidasCountrySignedResponseWithEncryptedKeys;
 
 import java.net.URI;
 import java.util.Collections;
@@ -74,7 +74,7 @@ public class AuthnResponseFromCountryServiceTest {
     private static final SamlAuthnResponseContainerDto SAML_AUTHN_RESPONSE_CONTAINER_DTO = aSamlAuthnResponseContainerDto().withSessionId(SESSION_ID).withPrincipalIPAddressAsSeenByHub("1.1.1.1").withAnalyticsSessionId(ANALYTICS_SESSION_ID).withJourneyType(JOURNEY_TYPE).build();
     private static final SamlAuthnResponseTranslatorDto SAML_AUTHN_RESPONSE_TRANSLATOR_DTO = SamlAuthnResponseTranslatorDtoBuilder.aSamlAuthnResponseTranslatorDto().build();
     private static final SamlAuthnResponseTranslatorDto NON_MATCHING_SAML_AUTHN_RESPONSE_TRANSLATOR_DTO = SamlAuthnResponseTranslatorDtoBuilder.aSamlAuthnResponseTranslatorDto().withMatchingServiceEntityId(TEST_RP).build();
-    private static final Optional<EidasUnsignedAssertions> EMPTY_UNSIGNED_ASSERTIONS = Optional.empty();
+    private static final Optional<EidasCountrySignedResponseWithEncryptedKeys> EMPTY_UNSIGNED_ASSERTIONS = Optional.empty();
 
     private static final InboundResponseFromCountry INBOUND_RESPONSE_FROM_COUNTRY = new InboundResponseFromCountry(
             Status.Success,

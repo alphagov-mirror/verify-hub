@@ -1,13 +1,16 @@
 package uk.gov.ida.hub.samlproxy.controllogic;
 
+import java.util.List;
 import java.util.Optional;
 import org.opensaml.saml.saml2.core.AuthnRequest;
+import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
 import org.slf4j.event.Level;
 import uk.gov.ida.common.SessionId;
 import uk.gov.ida.hub.samlproxy.contracts.AuthnResponseFromHubContainerDto;
 import uk.gov.ida.hub.samlproxy.domain.AuthnRequestFromHubContainerDto;
+import uk.gov.ida.hub.samlproxy.factories.EidasValidatorFactory;
 import uk.gov.ida.hub.samlproxy.logging.ExternalCommunicationEventLogger;
 import uk.gov.ida.hub.samlproxy.logging.ProtectiveMonitoringLogger;
 import uk.gov.ida.hub.samlproxy.proxy.SessionProxy;
@@ -29,6 +32,8 @@ public class SamlMessageSenderHandler {
     private final ExternalCommunicationEventLogger externalCommunicationEventLogger;
     private final ProtectiveMonitoringLogger protectiveMonitoringLogger;
     private final SessionProxy sessionProxy;
+    private final Optional<EidasValidatorFactory> eidasValidatorFactory;
+
 
     @Inject
     public SamlMessageSenderHandler(
@@ -37,7 +42,8 @@ public class SamlMessageSenderHandler {
             SamlMessageSignatureValidator samlMessageSignatureValidator,
             ExternalCommunicationEventLogger externalCommunicationEventLogger,
             ProtectiveMonitoringLogger protectiveMonitoringLogger,
-            SessionProxy sessionProxy) {
+            SessionProxy sessionProxy,
+            Optional<EidasValidatorFactory> eidasValidatorFactory) {
 
         this.responseTransformer = responseTransformer;
         this.authnRequestTransformer = authnRequestTransformer;
@@ -45,6 +51,7 @@ public class SamlMessageSenderHandler {
         this.externalCommunicationEventLogger = externalCommunicationEventLogger;
         this.protectiveMonitoringLogger = protectiveMonitoringLogger;
         this.sessionProxy = sessionProxy;
+        this.eidasValidatorFactory = eidasValidatorFactory;
     }
 
     public static class SamlMessage {
@@ -54,17 +61,26 @@ public class SamlMessageSenderHandler {
         private Optional<String> relayState;
         private String postEndpoint;
         private Optional<Boolean> registration;
+        private Optional<List<String>> encryptedKeys;
 
         @SuppressWarnings("unused") // Needed for JAXB
         public SamlMessage() {
         }
 
-        public SamlMessage(String samlMessage, SamlMessageType samlMessageType, Optional<String> relayState, String postEndpoint, Optional<Boolean> registration) {
+        public SamlMessage(
+                String samlMessage,
+                SamlMessageType samlMessageType,
+                Optional<String> relayState,
+                String postEndpoint,
+                Optional<Boolean> registration,
+                Optional<List<String>> encryptedKeys
+        ) {
             this.samlMessage = samlMessage;
             this.samlMessageType = samlMessageType;
             this.relayState = relayState;
             this.postEndpoint = postEndpoint;
             this.registration = registration;
+            this.encryptedKeys = encryptedKeys;
         }
 
         public String getSamlMessage() {
@@ -86,13 +102,22 @@ public class SamlMessageSenderHandler {
         public Optional<Boolean> getRegistration() {
             return registration;
         }
+
+        public Optional<List<String>> getEncryptedKeys() { return encryptedKeys; }
     }
 
     public SamlMessage generateAuthnResponseFromHub(SessionId sessionId, String principalIpAddressAsSeenByHub) {
         AuthnResponseFromHubContainerDto authnResponseFromHub = sessionProxy.getAuthnResponseFromHub(sessionId);
         Response samlResponse = responseTransformer.apply(authnResponseFromHub.getSamlResponse());
         validateAndLogSamlResponseSignature(samlResponse);
-        SamlMessage samlMessage = new SamlMessage(authnResponseFromHub.getSamlResponse(), SamlMessageType.SAML_RESPONSE, authnResponseFromHub.getRelayState(), authnResponseFromHub.getPostEndpoint().toString(), Optional.empty());
+        SamlMessage samlMessage = new SamlMessage(
+                authnResponseFromHub.getSamlResponse(),
+                SamlMessageType.SAML_RESPONSE,
+                authnResponseFromHub.getRelayState(),
+                authnResponseFromHub.getPostEndpoint().toString(),
+                Optional.empty(),
+                authnResponseFromHub.getEncryptedKeys()
+        );
         externalCommunicationEventLogger.logResponseFromHub(samlResponse.getID(), sessionId, authnResponseFromHub.getPostEndpoint(), principalIpAddressAsSeenByHub);
         return samlMessage;
     }
@@ -101,7 +126,7 @@ public class SamlMessageSenderHandler {
         AuthnResponseFromHubContainerDto authnResponseFromHub = sessionProxy.getErrorResponseFromHub(sessionId);
         Response samlResponse = responseTransformer.apply(authnResponseFromHub.getSamlResponse());
         validateAndLogSamlResponseSignature(samlResponse);
-        SamlMessage samlMessage = new SamlMessage(authnResponseFromHub.getSamlResponse(), SamlMessageType.SAML_RESPONSE, authnResponseFromHub.getRelayState(), authnResponseFromHub.getPostEndpoint().toString(), Optional.empty());
+        SamlMessage samlMessage = new SamlMessage(authnResponseFromHub.getSamlResponse(), SamlMessageType.SAML_RESPONSE, authnResponseFromHub.getRelayState(), authnResponseFromHub.getPostEndpoint().toString(), Optional.empty(), Optional.empty());
         externalCommunicationEventLogger.logResponseFromHub(authnResponseFromHub.getResponseId(), sessionId, authnResponseFromHub.getPostEndpoint(), principalIpAddressAsSeenByHub);
         return samlMessage;
     }
@@ -118,15 +143,20 @@ public class SamlMessageSenderHandler {
             SamlValidationSpecificationFailure failure = samlSignatureValidationResponse.getSamlValidationSpecificationFailure();
             throw new SamlTransformationErrorException(failure.getErrorMessage(), samlSignatureValidationResponse.getCause(), Level.ERROR);
         }
-        SamlMessage samlMessage = new SamlMessage(authnRequestFromHub.getSamlRequest(), SamlMessageType.SAML_REQUEST, Optional.ofNullable(sessionId.toString()), authnRequestFromHub.getPostEndpoint().toString(), Optional.of(authnRequestFromHub.getRegistering()));
+        SamlMessage samlMessage = new SamlMessage(authnRequestFromHub.getSamlRequest(), SamlMessageType.SAML_REQUEST, Optional.ofNullable(sessionId.toString()), authnRequestFromHub.getPostEndpoint().toString(), Optional.of(authnRequestFromHub.getRegistering()), Optional.empty());
 
         externalCommunicationEventLogger.logIdpAuthnRequest(request.getID(), sessionId, authnRequestFromHub.getPostEndpoint(), principalIpAddress);
         return samlMessage;
     }
 
     private void validateAndLogSamlResponseSignature(Response samlResponse) {
-        boolean isSigned = samlResponse.getIssuer() != null;
-        if (isSigned) {
+        Issuer issuer = samlResponse.getIssuer();
+        boolean isSigned = issuer != null;
+        if (isSigned && shouldValidateCountrySignature(issuer)) {
+            eidasValidatorFactory.get().getValidatedResponse(samlResponse);
+            protectiveMonitoringLogger.logAuthnResponse(samlResponse, Direction.OUTBOUND, SignatureStatus.COUNTRY_SIGNATURE);
+
+        } else if (isSigned) {
             SamlValidationResponse signatureValidationResponse = samlMessageSignatureValidator.validate(samlResponse, SPSSODescriptor.DEFAULT_ELEMENT_NAME);
             protectiveMonitoringLogger.logAuthnResponse(samlResponse, Direction.OUTBOUND, SignatureStatus.fromValidationResponse(signatureValidationResponse));
 
@@ -137,5 +167,9 @@ public class SamlMessageSenderHandler {
         } else {
             protectiveMonitoringLogger.logAuthnResponse(samlResponse, Direction.OUTBOUND, SignatureStatus.NO_SIGNATURE);
         }
+    }
+
+    private boolean shouldValidateCountrySignature(Issuer issuer) {
+        return !issuer.getValue().endsWith("signing.service.gov.uk") && eidasValidatorFactory.isPresent();
     }
 }

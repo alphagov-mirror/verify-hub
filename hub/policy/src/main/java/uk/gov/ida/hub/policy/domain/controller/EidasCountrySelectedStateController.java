@@ -112,7 +112,7 @@ public class EidasCountrySelectedStateController implements ErrorResponsePrepare
                 Optional.empty(),
                 Optional.empty(),
                 translatedResponse.getEncryptedIdentityAssertionBlob().get(),
-                translatedResponse.getUnsignedAssertions()
+                translatedResponse.getCountrySignedResponseWithEncryptedKeys()
         );
     }
 
@@ -247,7 +247,8 @@ public class EidasCountrySelectedStateController implements ErrorResponsePrepare
                 new SessionId(state.getSessionId().getSessionId()),
                 state.getTransactionSupportsEidas(),
                 state.getRelayState().orElse(null),
-                translatedResponse.getEncryptedIdentityAssertionBlob().map(Collections::singleton).orElse(Collections.emptySet())
+                translatedResponse.getEncryptedIdentityAssertionBlob().map(Collections::singleton).orElse(Collections.emptySet()),
+                translatedResponse.getCountrySignedResponseWithEncryptedKeys().orElse(null)
         );
     }
 

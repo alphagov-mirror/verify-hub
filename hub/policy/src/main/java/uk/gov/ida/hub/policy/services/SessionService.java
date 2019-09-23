@@ -1,5 +1,6 @@
 package uk.gov.ida.hub.policy.services;
 
+import uk.gov.ida.hub.policy.contracts.AuthnResponseContainerDto;
 import uk.gov.ida.hub.policy.contracts.AuthnResponseFromHubContainerDto;
 import uk.gov.ida.hub.policy.contracts.RequestForErrorResponseFromHubDto;
 import uk.gov.ida.hub.policy.contracts.SamlMessageDto;
@@ -14,9 +15,12 @@ import uk.gov.ida.hub.policy.domain.ResponseFromHub;
 import uk.gov.ida.hub.policy.domain.SamlAuthnRequestContainerDto;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
+import uk.gov.ida.hub.policy.domain.State;
+import uk.gov.ida.hub.policy.domain.controller.ResponsePreparedStateController;
 import uk.gov.ida.hub.policy.domain.exception.SessionCreationFailureException;
 import uk.gov.ida.hub.policy.domain.exception.SessionNotFoundException;
 import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
+import uk.gov.ida.hub.policy.domain.state.ResponsePreparedState;
 import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
@@ -114,6 +118,10 @@ public class SessionService {
 
     public AuthnResponseFromHubContainerDto getRpAuthnResponse(SessionId sessionId) {
         getSessionIfItExists(sessionId);
+        if (authnRequestHandler.isResponseFromCountry(sessionId)) {
+            return authnRequestHandler.getAuthnResponseFromCountry(sessionId);
+        }
+
         ResponseFromHub responseFromHub = authnRequestHandler.getResponseFromHub(sessionId);
         return samlEngineProxy.generateRpAuthnResponse(responseFromHub);
     }

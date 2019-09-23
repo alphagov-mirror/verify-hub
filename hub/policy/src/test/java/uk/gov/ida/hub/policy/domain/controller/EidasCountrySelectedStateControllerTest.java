@@ -32,7 +32,7 @@ import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
-import uk.gov.ida.saml.core.domain.EidasUnsignedAssertions;
+import uk.gov.ida.saml.core.domain.EidasCountrySignedResponseWithEncryptedKeys;
 
 import java.util.List;
 import java.util.Optional;
@@ -61,7 +61,7 @@ public class EidasCountrySelectedStateControllerTest {
     private static final String SELECTED_COUNTRY = STUB_COUNTRY_ONE;
     private static final String ANALYTICS_SESSION_ID = "some-session-id";
     private static final String JOURNEY_TYPE = "some-journey-type";
-    private static final Optional<EidasUnsignedAssertions> EMPTY_UNSIGNED_ASSERTIONS = Optional.empty();
+    private static final Optional<EidasCountrySignedResponseWithEncryptedKeys> EMPTY_UNSIGNED_ASSERTIONS = Optional.empty();
 
     private static final InboundResponseFromCountry INBOUND_RESPONSE_FROM_COUNTRY  = new InboundResponseFromCountry(
             CountryAuthenticationStatus.Status.Success,
@@ -300,7 +300,8 @@ public class EidasCountrySelectedStateControllerTest {
                 new SessionId(state.getSessionId().getSessionId()),
                 state.getTransactionSupportsEidas(),
                 state.getRelayState().orElse(null),
-                singleton(eidasAttributeQueryRequestDto.getEncryptedIdentityAssertion())
+                singleton(eidasAttributeQueryRequestDto.getEncryptedIdentityAssertion()),
+                null
         );
 
         ArgumentCaptor<NonMatchingJourneySuccessState> stateArgumentCaptor = ArgumentCaptor.forClass(NonMatchingJourneySuccessState.class);

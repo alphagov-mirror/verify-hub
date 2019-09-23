@@ -6,47 +6,34 @@ import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
-public class AuthnResponseFromHubContainerDto {
+public class AuthnResponseFromCountryContainerDto implements AuthnResponseContainerDto{
 
     private String samlResponse;
+    private List<String> encryptedKeys;
     private URI postEndpoint;
     private Optional<String> relayState = Optional.empty();
     private String responseId;
-    private Optional<List<String>> encryptedKeys;
 
     @SuppressWarnings("unused") //Needed for JAXB
-    private AuthnResponseFromHubContainerDto() {
+    private AuthnResponseFromCountryContainerDto() {
     }
 
-    public AuthnResponseFromHubContainerDto(
-            final String samlResponse,
-            final URI postEndpoint,
-            final Optional<String> relayState,
-            String responseId) {
-
-        this.samlResponse = samlResponse;
-        this.postEndpoint = postEndpoint;
-        this.relayState = relayState;
-        this.responseId = responseId;
-        this.encryptedKeys = Optional.empty();
-    }
-
-    public AuthnResponseFromHubContainerDto(
+    public AuthnResponseFromCountryContainerDto(
             final EidasCountrySignedResponseWithEncryptedKeys signedResponseWithEncryptedKeys,
             final URI postEndpoint,
             final Optional<String> relayState,
             String responseId) {
 
         this.samlResponse = signedResponseWithEncryptedKeys.getSaml();
-        this.encryptedKeys = Optional.of(signedResponseWithEncryptedKeys.getBase64encryptedKeys());
+        this.encryptedKeys = signedResponseWithEncryptedKeys.getBase64encryptedKeys();
         this.postEndpoint = postEndpoint;
         this.relayState = relayState;
         this.responseId = responseId;
     }
 
-    public String getSamlResponse() {
-        return samlResponse;
-    }
+    public String getSamlResponse() { return samlResponse; }
+
+    public List<String> getEncryptedKeys() { return encryptedKeys; }
 
     public URI getPostEndpoint() {
         return postEndpoint;
@@ -59,6 +46,4 @@ public class AuthnResponseFromHubContainerDto {
     public String getResponseId() {
         return responseId;
     }
-
-    public Optional<List<String>> getEncryptedKeys() { return encryptedKeys; }
 }
