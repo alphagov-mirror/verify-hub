@@ -1,6 +1,7 @@
 package uk.gov.ida.hub.policy.services;
 
 import uk.gov.ida.hub.policy.contracts.AuthnResponseContainerDto;
+import uk.gov.ida.hub.policy.contracts.AuthnResponseFromCountryContainerDto;
 import uk.gov.ida.hub.policy.contracts.AuthnResponseFromHubContainerDto;
 import uk.gov.ida.hub.policy.contracts.RequestForErrorResponseFromHubDto;
 import uk.gov.ida.hub.policy.contracts.SamlMessageDto;
@@ -119,7 +120,9 @@ public class SessionService {
     public AuthnResponseFromHubContainerDto getRpAuthnResponse(SessionId sessionId) {
         getSessionIfItExists(sessionId);
         if (authnRequestHandler.isResponseFromCountry(sessionId)) {
-            return authnRequestHandler.getAuthnResponseFromCountry(sessionId);
+            AuthnResponseFromCountryContainerDto authResponseFromCountryContainerDto = authnRequestHandler.getAuthResponseFromCountryContainerDto(sessionId);
+            return samlEngineProxy.generateRpAuthnResponseWrappingCountrySaml(authResponseFromCountryContainerDto);
+
         }
 
         ResponseFromHub responseFromHub = authnRequestHandler.getResponseFromHub(sessionId);

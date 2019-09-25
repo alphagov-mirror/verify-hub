@@ -1,12 +1,10 @@
-package uk.gov.ida.hub.policy.contracts;
-
-import uk.gov.ida.saml.core.domain.EidasCountrySignedResponseWithEncryptedKeys;
+package uk.gov.ida.saml.core.domain;
 
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
-public class AuthnResponseFromCountryContainerDto implements AuthnResponseContainerDto{
+public class AuthnResponseFromCountryContainerDto {
 
     private String samlResponse;
     private List<String> encryptedKeys;

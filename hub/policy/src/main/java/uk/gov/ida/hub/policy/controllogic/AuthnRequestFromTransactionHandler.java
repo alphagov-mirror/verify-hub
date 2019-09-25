@@ -143,6 +143,19 @@ public class AuthnRequestFromTransactionHandler {
         );
     }
 
+    public AuthnResponseFromCountryContainerDto getAuthResponseFromCountryContainerDto(SessionId sessionId) {
+        NonMatchingJourneySuccessStateController stateController = (NonMatchingJourneySuccessStateController)
+                sessionRepository.getStateController(sessionId, ResponsePreparedState.class);
+        NonMatchingJourneySuccessState state = stateController.getState();
+        return new AuthnResponseFromCountryContainerDto(
+                state.getCountrySignedResponseWithEncryptedKeys().get(),
+                state.getAssertionConsumerServiceUri(),
+                state.getRelayState(),
+                state.getRequestId(),
+                idGenerator.getId()
+        );
+    }
+
     public boolean isResponseFromCountry(SessionId sessionId) {
         try {
             NonMatchingJourneySuccessStateController stateController = (NonMatchingJourneySuccessStateController)

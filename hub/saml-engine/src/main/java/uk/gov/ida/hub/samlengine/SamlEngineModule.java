@@ -110,6 +110,7 @@ import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseT
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToInboundResponseFromMatchingServiceTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.AssertionFromIdpToAssertionTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.EncryptedAssertionUnmarshaller;
+import uk.gov.ida.saml.hub.transformers.outbound.OutboundAuthnResponseFromCountryContainerToStringFunction;
 import uk.gov.ida.saml.hub.transformers.outbound.OutboundLegacyResponseFromHubToStringFunction;
 import uk.gov.ida.saml.hub.transformers.outbound.OutboundLegacyResponseFromHubToStringFunctionSHA256;
 import uk.gov.ida.saml.hub.transformers.outbound.OutboundSamlProfileResponseFromHubToStringFunction;
@@ -572,6 +573,22 @@ public class SamlEngineModule extends AbstractModule {
                         encryptionKeyStore,
                         keyStore,
                         entityToEncryptForLocator,
+                        responseAssertionSigner,
+                        new SignatureRSASHA256(),
+                        digestAlgorithm
+                )
+        );
+    }
+
+    @Provides
+    private OutboundAuthnResponseFromCountryContainerToStringFunction getOutboundAuthnResponseFromCountryContainerToSamlResponseTransformerProvider(
+            IdaKeyStore keyStore,
+            ResponseAssertionSigner responseAssertionSigner,
+            DigestAlgorithm digestAlgorithm) {
+
+        return new OutboundAuthnResponseFromCountryContainerToStringFunction (
+                hubTransformersFactory.getOutboundAuthnResponseFromCountryContainerToStringTransformer(
+                        keyStore,
                         responseAssertionSigner,
                         new SignatureRSASHA256(),
                         digestAlgorithm
